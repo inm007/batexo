@@ -1,13 +1,24 @@
 <?php
 
+use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\ProduitController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
     return view('welcome');
 });
 
-use App\Http\Controllers\ProduitController;
+Route::get('/dashboard', function () {
+    return view('dashboard');
+})->middleware(['auth', 'verified'])->name('dashboard');
 
-Route::get('/produits', [ProduitController::class, 'index'])->name('produits.index');
-Route::get('/produits/create', [ProduitController::class, 'create'])->name('produits.create');
-Route::post('/produits', [ProduitController::class, 'store'])->name('produits.store');
+Route::middleware(['auth', 'verified'])->group(function () {
+    Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
+    Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
+    Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
+    
+    // Routes pour les produits
+    Route::resource('produits', ProduitController::class);
+});
+
+require __DIR__.'/auth.php';
